@@ -6,42 +6,70 @@
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
   <style>
     body {
-      background: url('https://i.imgur.com/vb9pHjL.jpg') no-repeat center center fixed;
-      background-size: cover;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
       font-family: 'MedievalSharp', cursive;
       color: #f5deb3;
       text-align: center;
-      padding: 2rem;
     }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
     .invitacion {
+      position: relative;
+      z-index: 1;
       background: rgba(0, 0, 0, 0.7);
       border: 2px solid #d4af37;
       padding: 2rem;
       border-radius: 15px;
       max-width: 800px;
-      margin: auto;
+      margin: 2rem auto;
       box-shadow: 0 0 20px #d4af37;
     }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('fondo.png') no-repeat center center fixed;
+      background-size: cover;
+      z-index: -2;
+    }
+
     .titulo {
       font-size: 3rem;
       margin-bottom: 1rem;
       color: #ffd700;
     }
+
     .detalle {
       font-size: 1.2rem;
       margin: 1rem 0;
     }
+
     img.quinceanera {
       border: 3px solid #d4af37;
       border-radius: 10px;
       width: 200px;
       margin-top: 20px;
     }
+
     .casa {
       font-size: 1.2rem;
       color: #98fb98;
       margin-top: 10px;
     }
+
     .varita {
       font-size: 1rem;
       margin-top: 20px;
@@ -50,6 +78,8 @@
   </style>
 </head>
 <body>
+  <canvas id="rayosCanvas"></canvas>
+
   <div class="invitacion">
     <h1 class="titulo">Mis XV Años</h1>
     <p class="detalle">La magia está por comenzar...</p>
@@ -62,5 +92,60 @@
     <p class="detalle"><strong>Lugar:</strong> Salón de los Encantamientos, Calle Mágica 9¾</p>
     <p class="varita">"Que la magia de esta noche dure para siempre."</p>
   </div>
+
+  <script>
+    const canvas = document.getElementById('rayosCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    class Rayo {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = 0;
+        this.length = Math.random() * 150 + 50;
+        this.speed = Math.random() * 5 + 4;
+        this.alpha = 1;
+        this.thickness = Math.random() * 2 + 1;
+      }
+
+      update() {
+        this.y += this.speed;
+        this.alpha -= 0.02;
+        if (this.alpha <= 0) this.reset();
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(255,255,255,${this.alpha})`;
+        ctx.lineWidth = this.thickness;
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x, this.y + this.length);
+        ctx.stroke();
+      }
+    }
+
+    let rayos = Array.from({length: 30}, () => new Rayo());
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      rayos.forEach(rayo => {
+        rayo.update();
+        rayo.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
 </body>
 </html>
